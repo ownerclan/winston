@@ -1,5 +1,70 @@
 # winston
 
+---
+**This is fork of [winston@Github](https://github.com/winstonjs/winston) to [saleop@Gitlab](http://gitlab.hpm/saleop/winston)**
+
+## Example
+
+### Logger setting.
+```javascript
+// logger.js
+const winston = require("winston")
+const defaultTransport = new winston.transports.Console({
+  format: winston.format.combine(
+    winston.format.colorzie(),
+    winston.format.timestamp(),
+    winston.format.printf((info) => {
+      const metaObject = info.err ? info.err :
+        info.meta ? Object.keys(info.meta).map((val) => info.meta[val]).join(" ") :
+          "";
+      return `${info.timestamp}${info.label ? ` ${info.label} ` : " "}${info.level}:${/^\s*$/.test(info.message) ? "" : ` ${info.message}`}${/^\s*$/.test(metaObject) ? "" : ` ${metaObject}`}`;
+    }),
+  ),
+  level: "info",
+  name: "default-transport",
+});
+
+const logger = winston.createLogger({
+  level: "info",
+  transports: [
+    defaultTransport
+  ]
+});
+
+export default logger;
+```
+
+### Logging error object.
+
+```javascript
+const logger = require("logger");
+logger.error("", new Error("THIS IS AN ERROR"));
+/*
+2018-02-09T09:05:21.621Z error: Error: THIS IS AN ERROR
+    at Object.<anonymous> (C:\Users\hplusmall\Documents\projects\nodejs\saleop-api\tests\logger.ts:5:11)
+    at Module._compile (module.js:573:30)
+    at Module.m._compile (C:\Users\hplusmall\AppData\Roaming\npm\node_modules\ts-node\src\index.ts:392:23)
+    at Module._extensions..js (module.js:584:10)
+    at Object.require.extensions.(anonymous function) [as .ts] (C:\Users\hplusmall\AppData\Roaming\npm\node_modules\ts-node\src\index.ts:395:12)
+    at Module.load (module.js:507:32)
+    at tryModuleLoad (module.js:470:12)
+    at Function.Module._load (module.js:462:3)
+    at Function.Module.runMain (module.js:609:10)
+    at Object.<anonymous> (C:\Users\hplusmall\AppData\Roaming\npm\node_modules\ts-node\src\_bin.ts:182:12)
+*/
+```
+
+### Logging metadata object.
+
+```javascript
+const logger = require("logger");
+logger.info("This is a message", {data: "This is data"});
+/*
+2018-02-09T09:05:21.587Z info: This is a message This is data
+*/
+```
+---
+
 A logger for just about everything.
 
 [![Version npm](https://img.shields.io/npm/v/winston.svg?style=flat-square)](https://www.npmjs.com/package/winston)[![npm Downloads](https://img.shields.io/npm/dm/winston.svg?style=flat-square)](https://www.npmjs.com/package/winston)[![Build Status](https://img.shields.io/travis/winstonjs/winston/master.svg?style=flat-square)](https://travis-ci.org/winstonjs/winston)[![Dependencies](https://img.shields.io/david/winstonjs/winston.svg?style=flat-square)](https://david-dm.org/winstonjs/winston)
@@ -47,7 +112,7 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     //
-    // - Write to all logs with level `info` and below to `combined.log` 
+    // - Write to all logs with level `info` and below to `combined.log`
     // - Write all logs error (and below) to `error.log`.
     //
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
@@ -58,7 +123,7 @@ const logger = winston.createLogger({
 //
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-// 
+//
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.simple()
@@ -106,13 +171,13 @@ Logging levels in `winston` conform to the severity ordering specified by
 from most important to least important._
 
 ``` js
-const levels = { 
-  error: 0, 
-  warn: 1, 
-  info: 2, 
-  verbose: 3, 
-  debug: 4, 
-  silly: 5 
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  verbose: 3,
+  debug: 4,
+  silly: 5
 }
 ```
 
@@ -132,14 +197,14 @@ A logger accepts a following parameters:
 
 | Name          | Default                |  Description    |
 | ------------- | ---------------------- | --------------- |
-| `level`       | `'info'`               | Log only if `info.level` less than or equal to this level  |  
+| `level`       | `'info'`               | Log only if `info.level` less than or equal to this level  |
 | `levels`      | `winston.config.npm`   | Levels (and colors) representing log priorities            |
 | `format`      | `winston.formats.json` | Formatting for `info` messages  (see: [Formats])           |
 | `transports`  | `[]` _(No transports)_ | Set of logging targets for `info` messages                 |
 | `exitOnError` | `true`                 | If false, handled exceptions will not cause `process.exit` |
 
 The levels provided to `createLogger` will be defined as convenience methods
-on the `logger` returned. 
+on the `logger` returned.
 
 ``` js
 //
@@ -153,7 +218,7 @@ logger.log({
 logger.info('Hello again distributed logs');
 ```
 
-You can add or remove transports from the `logger` once it has been provided 
+You can add or remove transports from the `logger` once it has been provided
 to you from `winston.createLogger`:
 
 ``` js
@@ -201,7 +266,7 @@ object represents a single log message. The object itself is mutable. Every
 
 ``` js
 {
-  level: 'info',                 // Level of the logging message  
+  level: 'info',                 // Level of the logging message
   message: 'Hey! Log something?' // Descriptive message being logged.
 }
 ```
@@ -215,10 +280,10 @@ object represents a single log message. The object itself is mutable. Every
 As a consumer you may add whatever properties you wish – _internal state is
 maintained by `Symbol` properties:_
 
-- `Symbol.for('level')` _**(READ-ONLY)**:_ equal to `level` property. Is 
-treated as immutable by all code.  
-- `Symbol.for('message'):` complete string message set by "finalizing 
-formats": `json`, `logstash`, `printf`, `prettyPrint`, and `simple`. 
+- `Symbol.for('level')` _**(READ-ONLY)**:_ equal to `level` property. Is
+treated as immutable by all code.
+- `Symbol.for('message'):` complete string message set by "finalizing
+formats": `json`, `logstash`, `printf`, `prettyPrint`, and `simple`.
 
 ## Formats
 
@@ -308,7 +373,7 @@ logger.log('info', 'test message %s, %s', 'first', 'second', { number: 123 });
 
 ### Filtering `info` Objects
 
-If you wish to filter out a given `info` Object completely when logging then 
+If you wish to filter out a given `info` Object completely when logging then
 simply return a falsey value.
 
 ``` js
@@ -357,7 +422,7 @@ const willNeverThrow = format.combine(
 
 ### Creating custom formats
 
-Formats are prototypal objects (i.e. class instances) that define a single 
+Formats are prototypal objects (i.e. class instances) that define a single
 method: `transform(info, opts)` and return the mutated `info`:
 
 - `info`: an object representing the log message.
@@ -365,11 +430,11 @@ method: `transform(info, opts)` and return the mutated `info`:
 
 They are expected to return one of two things:
 
-- **An `info` Object** representing the modified `info` argument. Object 
-references need not be preserved if immutability is preferred. All current 
-built-in formats consider `info` mutable, but [immutablejs] is being 
+- **An `info` Object** representing the modified `info` argument. Object
+references need not be preserved if immutability is preferred. All current
+built-in formats consider `info` mutable, but [immutablejs] is being
 considered for future releases.
-- **A falsey value** indicating that the `info` argument should be ignored by the 
+- **A falsey value** indicating that the `info` argument should be ignored by the
 caller. (See: [Filtering `info` Objects](#filtering-info-objects)) below.
 
 `winston.format` is designed to be as simple as possible. To define a new
@@ -427,14 +492,14 @@ corresponding integer priority.  For example, as specified exactly in RFC5424
 the `syslog` levels are prioritized from 0 to 7 (highest to lowest).
 
 ```js
-{ 
-  emerg: 0, 
-  alert: 1, 
-  crit: 2, 
-  error: 3, 
-  warning: 4, 
-  notice: 5, 
-  info: 6, 
+{
+  emerg: 0,
+  alert: 1,
+  crit: 2,
+  error: 3,
+  warning: 4,
+  notice: 5,
+  info: 6,
   debug: 7
 }
 ```
@@ -443,13 +508,13 @@ Similarly, `npm` logging levels are prioritized from 0 to 5 (highest to
 lowest):
 
 ``` js
-{ 
-  error: 0, 
-  warn: 1, 
-  info: 2, 
-  verbose: 3, 
-  debug: 4, 
-  silly: 5 
+{
+  error: 0,
+  warn: 1,
+  info: 2,
+  verbose: 3,
+  debug: 4,
+  silly: 5
 }
 ```
 
@@ -546,8 +611,8 @@ const myCustomLevels = {
   }
 };
 
-const customLevelLogger = winston.createLogger({ 
-  levels: myCustomLevels.levels 
+const customLevelLogger = winston.createLogger({
+  levels: myCustomLevels.levels
 });
 
 customLevelLogger.foobar('some foobar level-ed message');
@@ -621,7 +686,7 @@ module.exports = class YourCustomTransport extends Transport {
     //
     // Consume any custom options here. e.g.:
     // - Connection information for databases
-    // - Authentication information for APIs (e.g. loggly, papertrail, 
+    // - Authentication information for APIs (e.g. loggly, papertrail,
     //   logentries, etc.).
     //
   }
@@ -651,7 +716,7 @@ const { createLogger, transports } = require('winston');
 // Enable exception handling when you create your logger.
 const logger = winston.createLogger({
   transports: [
-    new transports.File({ filename: 'combined.log' }) 
+    new transports.File({ filename: 'combined.log' })
   ],
   exceptionHandlers: [
     new transports.File({ filename: 'exceptions.log' })
@@ -661,7 +726,7 @@ const logger = winston.createLogger({
 // Or enable it later on by adding a transport or using `.exceptions.handle`
 const logger = winston.createLogger({
   transports: [
-    new transports.File({ filename: 'combined.log' }) 
+    new transports.File({ filename: 'combined.log' })
   ]
 });
 
@@ -684,7 +749,7 @@ winston.exceptions.handle(
 
 //
 // Alternatively you can set `.handleExceptions` to true when adding transports
-// to winston. You can use the `.humanReadableUnhandledException` option to 
+// to winston. You can use the `.humanReadableUnhandledException` option to
 // get more readable exceptions.
 //
 winston.add(new winston.transports.File({
