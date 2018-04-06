@@ -67,16 +67,16 @@ logger.info("This is a message", {data: "This is data"});
 
 A logger for just about everything.
 
-[![Version npm](https://img.shields.io/npm/v/winston.svg?style=flat-square)](https://www.npmjs.com/package/winston)[![npm Downloads](https://img.shields.io/npm/dm/winston.svg?style=flat-square)](https://www.npmjs.com/package/winston)[![Build Status](https://img.shields.io/travis/winstonjs/winston/master.svg?style=flat-square)](https://travis-ci.org/winstonjs/winston)[![Dependencies](https://img.shields.io/david/winstonjs/winston.svg?style=flat-square)](https://david-dm.org/winstonjs/winston)
+[![Version npm](https://img.shields.io/npm/v/winston.svg?style=flat-square)](https://www.npmjs.com/package/winston)[![npm Downloads](https://img.shields.io/npm/dm/winston.svg?style=flat-square)](https://npmcharts.com/compare/winston?minimal=true)[![Build Status](https://img.shields.io/travis/winstonjs/winston/master.svg?style=flat-square)](https://travis-ci.org/winstonjs/winston)[![Dependencies](https://img.shields.io/david/winstonjs/winston.svg?style=flat-square)](https://david-dm.org/winstonjs/winston)
 
 [![NPM](https://nodei.co/npm/winston.png?downloads=true&downloadRank=true)](https://nodei.co/npm/winston/)
 
 [![Join the chat at https://gitter.im/winstonjs/winston](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/winstonjs/winston?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## winston@3.0.0-rc0
+## winston@3.0.0-rc3
 
 We are looking for feedback on the latest version of `winston`:
-`winston@3.0.0-rc0`.
+`winston@3.0.0-rc3`.
 
 ```
 npm i winston@next --save
@@ -84,6 +84,10 @@ npm i winston@next --save
 
 See the [Upgrade Guide](UPGRADE-3.0.md) for more information. Bug reports and
 PRs welcome!
+
+## 3.0.0 Documentation
+
+Please note that the documentation below is for 3.0.0. [See here for the 2.4.0 documentation.](https://github.com/winstonjs/winston/tree/2.4.0).
 
 ## Motivation
 
@@ -139,7 +143,7 @@ logger to use throughout your application if you so choose.
 
 * [Logging](#logging)
   * [Creating your logger](#creating-your-own-logger)
-  * [Streams, `objectMode`, and info` objects](#streams-objectmode-and-info-objects)
+  * [Streams, `objectMode`, and `info` objects](#streams-objectmode-and-info-objects)
 * [Formats]
   * [Combining formats](#combining-formats)
   * [String interpolation](#string-interpolation)
@@ -193,7 +197,7 @@ const logger = winston.createLogger({
 });
 ```
 
-A logger accepts a following parameters:
+A logger accepts the following parameters:
 
 | Name          | Default                |  Description    |
 | ------------- | ---------------------- | --------------- |
@@ -211,7 +215,7 @@ on the `logger` returned.
 // Logging
 //
 logger.log({
-  level: 'info'
+  level: 'info',
   message: 'Hello distributed log files!'
 });
 
@@ -257,7 +261,7 @@ logger.configure({
 });
 ```
 
-### Streams, `objectMode`, and info` objects
+### Streams, `objectMode`, and `info` objects
 
 In `winston`, both `Logger` and `Transport` instances are treated as
 `objectMode` streams that accept an `info` object. The `info`
@@ -288,11 +292,13 @@ formats": `json`, `logstash`, `printf`, `prettyPrint`, and `simple`.
 ## Formats
 
 Formats in `winston` can be accessed from `winston.format`. They are
-implemented in, `logform`, a separate module from `winston`. This allows
-flexibility when writing your own transports in case you wish to include a
-default format with your transport.
+implemented in [`logform`](https://github.com/winstonjs/logform), a separate
+module from `winston`. This allows flexibility when writing your own transports
+in case you wish to include a default format with your transport.
 
-In modern versions of `node` template strings are very performant and are the recommended way for doing most end-user formatting. If you want to bespoke format your logs, `winston.format.printf` is for you:
+In modern versions of `node` template strings are very performant and are the
+recommended way for doing most end-user formatting. If you want to bespoke
+format your logs, `winston.format.printf` is for you:
 
 ``` js
 const { createLogger, format, transports } = require('winston');
@@ -311,6 +317,10 @@ const logger = createLogger({
   transports: [new transports.Console()]
 });
 ```
+
+To see what built-in formats are available and learn more about creating your
+own custom logging formats, see
+[`logform`](https://github.com/winstonjs/logform).
 
 ### Combining formats
 
@@ -473,7 +483,7 @@ const whisper = volume({ whisper: true });
 console.dir(whisper.transform({
   level: 'info',
   message: `WHY ARE THEY MAKING US YELL SO MUCH!`
-}), whisper.options);
+}, whisper.options));
 // {
 //   level: 'info'
 //   message: 'why are they making us yell so much!'
@@ -570,7 +580,7 @@ You may also dynamically change the log level of a transport:
 
 ``` js
 const transports = {
-  console: new winston.transports.Console({ level: 'warn': level: 'warn' }),
+  console: new winston.transports.Console({ level: 'warn' }),
   file: new winston.transports.File({ filename: 'combined.log', level: 'error' })
 };
 
@@ -624,11 +634,29 @@ colors, in addition to passing the levels to the Logger itself, you must make
 winston aware of them:
 
 ``` js
-winston.addColors(myCustomLevels);
+winston.addColors(myCustomLevels.colors);
 ```
 
-This enables transports with the 'colorize' option set to appropriately color
+This enables transports with the 'colorize' option set to appropriately color and style 
 the output of custom levels.
+
+Additionally, you can also change background color and font style. 
+For example,
+``` js
+baz: 'italic yellow',
+foobar: 'bold red cyanBG'
+```
+
+Possible options are below.
+
+* Font styles: `bold`, `dim`, `italic`, `underline`, `inverse`, `hidden`, 
+  `strikethrough`.
+
+* Font foreground colors: `black`, `red`, `green`, `yellow`, `blue`, `magenta`,
+  `cyan`, `white`, `gray`, `grey`.
+
+* Background colors: `blackBG`, `redBG`, `greenBG`, `yellowBG`, `blueBG`
+  `magentaBG`, `cyanBG`, `whiteBG`
 
 ## Transports
 
@@ -714,7 +742,7 @@ when it's created or later on in your applications lifecycle:
 const { createLogger, transports } = require('winston');
 
 // Enable exception handling when you create your logger.
-const logger = winston.createLogger({
+const logger = createLogger({
   transports: [
     new transports.File({ filename: 'combined.log' })
   ],
@@ -724,7 +752,7 @@ const logger = winston.createLogger({
 });
 
 // Or enable it later on by adding a transport or using `.exceptions.handle`
-const logger = winston.createLogger({
+const logger = createLogger({
   transports: [
     new transports.File({ filename: 'combined.log' })
   ]
@@ -948,7 +976,7 @@ message:
 ``` js
 const transport = new winston.transports.Console();
 const logger = winston.createLogger({
-  transports: [transport];
+  transports: [transport]
 });
 
 transport.on('logged', function (info) {
@@ -1052,7 +1080,7 @@ yarn add winston
 
 ## Run Tests
 
-All of the winston tests are written with `mocha`, `nyc`, and `assume`.  They
+All of the winston tests are written with [`mocha`][mocha], [`nyc`][nyc], and [`assume`][assume].  They
 can be run with `npm`.
 
 ``` bash
@@ -1073,6 +1101,9 @@ npm test
 [RFC5424]: https://tools.ietf.org/html/rfc5424
 [EventEmitter]: https://nodejs.org/dist/latest/docs/api/events.html#events_class_eventemitter
 [util.format]: https://nodejs.org/dist/latest/docs/api/util.html#util_util_format_format_args
+[mocha]: https://mochajs.org
+[nyc]: https://github.com/istanbuljs/nyc
+[assume]: https://github.com/bigpipe/assume
 
 [Charlie Robbins]: http://github.com/indexzero
 [Jarrett Cruger]: https://github.com/jcrugzz
